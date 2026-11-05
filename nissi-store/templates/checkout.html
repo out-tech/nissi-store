@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-6">
+<h1 class="font-serif2 text-3xl">Checkout</h1>
+<p class="mt-2">Total to pay: <b>GH₵ {{ total }}</b></p>
+<form method="post" class="bg-white p-5 rounded-2xl mt-4 space-y-3">{% csrf_token %}
+<input name="phone" required placeholder="Your Phone e.g 055 123 4567" class="w-full border rounded-xl px-4 py-3">
+<textarea name="address" required placeholder="Delivery Address e.g East Legon, Accra" class="w-full border rounded-xl px-4 py-3"></textarea>
+<select name="payment" class="w-full border rounded-xl px-4 py-3"><option>Pay on Delivery</option><option>MoMo</option><option>Bank Transfer</option></select>
+<button class="w-full bg-black text-white py-3 rounded-full font-bold">Place Order →</button>
+</form>
+</div>
+{% endblock %}

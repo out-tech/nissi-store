@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <h1 class="font-serif2 text-3xl">Shop All</h1>
+  <form method="get" class="flex gap-2 mt-4">
+    <input name="q" placeholder="Search dress, bag..." class="flex-1 border rounded-full px-4 py-2">
+    <button class="bg-black text-white px-5 rounded-full">Search</button>
+  </form>
+  <div class="flex gap-2 mt-4 flex-wrap">
+    <a href="/shop/" class="px-4 py-1.5 rounded-full border bg-white">All</a>
+    <a href="/shop/?category=dresses" class="px-4 py-1.5 rounded-full border bg-white">Dresses</a>
+    <a href="/shop/?category=bags" class="px-4 py-1.5 rounded-full border bg-white">Bags</a>
+    <a href="/shop/?category=shoes" class="px-4 py-1.5 rounded-full border bg-white">Shoes</a>
+    <a href="/shop/?category=accessories" class="px-4 py-1.5 rounded-full border bg-white">Accessories</a>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+    {% for p in products %}
+    <a href="/product/{{ p.id }}/" class="bg-white rounded-2xl overflow-hidden shadow">
+      {% if p.image %}<img src="{{ p.image.url }}" class="w-full h-56 object-cover">{% endif %}
+      <div class="p-3"><p class="text-xs text-gray-400">{{ p.category }}</p><h3 class="font-semibold truncate">{{ p.name }}</h3><p class="font-bold">GH₵ {{ p.price }}</p></div>
+    </a>
+    {% empty %}<p class="col-span-4 text-center text-gray-500 py-10">No products in this category yet.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

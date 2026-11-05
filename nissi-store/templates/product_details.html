@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 grid md:grid-cols-2 gap-8">
+  <div>{% if p.image %}<img src="{{ p.image.url }}" class="w-full h-[500px] object-cover rounded-3xl">{% endif %}</div>
+  <div>
+    <p class="text-xs uppercase tracking-widest text-pink-600">{{ p.category }}</p>
+    <h1 class="font-serif2 text-4xl mt-2">{{ p.name }}</h1>
+    <p class="text-2xl font-bold mt-3">GH₵ {{ p.price }} {% if p.old_price %}<span class="line-through text-gray-400 text-base">GH₵ {{ p.old_price }}</span>{% endif %}</p>
+    <p class="text-gray-600 mt-4">{{ p.description|default:"Elegant piece from House of Nissi Nyameani. Quality fabric, perfect fit." }}</p>
+    <p class="mt-3 text-sm">Stock: <b>{{ p.stock }}</b></p>
+    {% if user.is_authenticated %}
+      <a href="/add-to-cart/{{ p.id }}/" class="block text-center bg-black text-white py-3 rounded-full mt-6 font-bold">Add to Cart 🛒</a>
+    {% else %}
+      <a href="/login/" class="block text-center bg-black text-white py-3 rounded-full mt-6 font-bold">Login to Add to Cart</a>
+    {% endif %}
+    <a href="https://wa.me/{{ setting.whatsapp_number }}?text=I want {{ p.name }}" target="_blank" class="block text-center bg-green-500 text-white py-3 rounded-full mt-2 font-bold">Ask on WhatsApp</a>
+  </div>
+</div>
+{% if related %}
+<div class="max-w-7xl mx-auto px-4 pb-10"><h2 class="font-serif2 text-2xl mb-4">You May Also Like</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-4">{% for r in related %}<a href="/product/{{ r.id }}/" class="bg-white rounded-2xl overflow-hidden shadow">{% if r.image %}<img src="{{ r.image.url }}" class="w-full h-48 object-cover">{% endif %}<div class="p-3"><h3 class="font-semibold truncate">{{ r.name }}</h3><p class="font-bold">GH₵ {{ r.price }}</p></div></a>{% endfor %}</div></div>
+{% endif %}
+{% endblock %}

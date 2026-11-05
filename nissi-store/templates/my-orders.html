@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-6">
+<h1 class="font-serif2 text-3xl">My Orders</h1>
+<div class="space-y-3 mt-4">{% for o in orders %}<div class="bg-white p-4 rounded-2xl"><div class="flex justify-between"><b>Order #{{ o.id }}</b><span class="px-3 py-1 rounded-full text-xs bg-yellow-100">{{ o.status }}</span></div><p class="text-sm text-gray-500 mt-1">{{ o.created_at }} • {{ o.payment_method }}</p><p class="font-bold mt-1">GH₵ {{ o.total }}</p>{% for it in o.items.all %}<p class="text-sm">• {{ it.product.name }} × {{ it.quantity }}</p>{% endfor %}</div>{% empty %}<p class="bg-white p-8 rounded-2xl text-center text-gray-500">No orders yet. <a href="/shop/" class="text-blue-600 underline">Shop now</a></p>{% endfor %}</div>
+</div>
+{% endblock %}

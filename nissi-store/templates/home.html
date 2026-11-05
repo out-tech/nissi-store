@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4">
+  <div class="bg-gradient-to-r from-pink-100 to-amber-100 rounded-3xl mt-6 p-8 md:p-14 text-center">
+    <p class="text-pink-600 font-bold tracking-widest text-xs">NEW COLLECTION 2026</p>
+    <h1 class="font-serif2 text-4xl md:text-6xl mt-3">Wear Confidence.<br>Wear Nissi.</h1>
+    <p class="text-gray-600 mt-4">Dresses, Bags & Shoes that make you stand out in Accra and beyond.</p>
+    <div class="flex justify-center gap-3 mt-6"><a href="/shop/" class="bg-black text-white px-6 py-3 rounded-full">Shop Now →</a><a href="/shop/?category=dresses" class="bg-white px-6 py-3 rounded-full border">View Dresses</a></div>
+  </div>
+
+  <h2 class="font-serif2 text-2xl md:text-3xl mt-10 mb-4">Featured Products</h2>
+  {% if products %}
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {% for p in products %}
+    <a href="/product/{{ p.id }}/" class="bg-white rounded-2xl overflow-hidden shadow hover:shadow-lg">
+      {% if p.image %}<img src="{{ p.image.url }}" class="w-full h-56 object-cover">{% endif %}
+      <div class="p-3"><p class="text-xs text-gray-400 uppercase">{{ p.category }}</p><h3 class="font-semibold truncate">{{ p.name }}</h3><p class="mt-1"><span class="font-bold">GH₵ {{ p.price }}</span> {% if p.old_price %}<span class="line-through text-gray-400 text-sm">GH₵ {{ p.old_price }}</span>{% endif %}</p><p class="text-xs {% if p.stock < 3 %}text-red-500{% else %}text-green-600{% endif %}">Stock: {{ p.stock }}</p></div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bg-white rounded-2xl p-10 text-center"><p class="text-gray-500">No products yet. Madam Nissi will add products from Admin soon. 👑</p><a href="/admin/" class="text-blue-600 underline">Go to Admin to Add Product</a></div>
+  {% endif %}
+
+  <div class="grid md:grid-cols-3 gap-4 mt-10">
+    <div class="bg-white p-5 rounded-2xl text-center"><p class="text-2xl">🚚</p><h3 class="font-bold mt-2">Fast Delivery</h3><p class="text-sm text-gray-500">Accra same-day, Nationwide 2-3 days</p></div>
+    <div class="bg-white p-5 rounded-2xl text-center"><p class="text-2xl">💵</p><h3 class="font-bold mt-2">Pay on Delivery</h3><p class="text-sm text-gray-500">Pay cash or MoMo when you receive</p></div>
+    <div class="bg-white p-5 rounded-2xl text-center"><p class="text-2xl">💬</p><h3 class="font-bold mt-2">WhatsApp Support</h3><p class="text-sm text-gray-500">Chat us anytime, we reply fast</p></div>
+  </div>
+</div>
+{% endblock %}

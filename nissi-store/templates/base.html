@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House of Nissi Nyameani</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>body{font-family:'Inter',sans-serif} .font-serif2{font-family:'Playfair Display',serif}</style>
+</head>
+<body class="bg-[#FFF9F5]">
+<!-- ANNOUNCEMENT -->
+<div class="bg-black text-white text-center text-xs py-2 px-2">{{ setting.announcement }}</div>
+
+<!-- NAV -->
+<header class="bg-white shadow sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="/" class="font-serif2 text-xl md:text-2xl font-bold">HOUSE OF NISSI <span class="text-pink-600">NYAMEANI</span></a>
+    <nav class="hidden md:flex gap-6 text-sm font-medium">
+      <a href="/">Home</a>
+      <a href="/shop/">Shop</a>
+      <a href="/shop/?category=dresses">Dresses</a>
+      <a href="/shop/?category=bags">Bags</a>
+      <a href="/shop/?category=shoes">Shoes</a>
+      <a href="/support/">Help</a>
+    </nav>
+    <div class="flex gap-2 items-center text-sm">
+      {% if user.is_authenticated %}
+        <a href="/my-orders/" class="hidden md:block">My Orders</a>
+        <a href="/cart/" class="bg-black text-white px-3 py-1.5 rounded-full">Cart</a>
+        <a href="/logout/" class="text-gray-500">Logout</a>
+      {% else %}
+        <a href="/login/">Login</a>
+        <a href="/signup/" class="bg-black text-white px-3 py-1.5 rounded-full">Sign Up</a>
+      {% endif %}
+    </div>
+  </div>
+  <!-- MOBILE NAV -->
+  <div class="md:hidden flex justify-center gap-4 pb-2 text-xs font-medium">
+    <a href="/">Home</a><a href="/shop/">Shop</a><a href="/cart/">Cart</a><a href="/support/">Help</a>
+  </div>
+</header>
+
+{% if messages %}
+<div class="max-w-7xl mx-auto px-4 mt-3">
+  {% for m in messages %}<div class="bg-green-100 border border-green-300 text-green-800 px-4 py-2 rounded">{{ m }}</div>{% endfor %}
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<!-- FOOTER -->
+<footer class="bg-black text-white mt-16">
+  <div class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8">
+    <div><h3 class="font-serif2 text-xl">HOUSE OF NISSI NYAMEANI</h3><p class="text-gray-400 text-sm mt-2">Elegance, Confidence, Beauty. Made in Ghana for the world.</p></div>
+    <div><h4 class="font-bold">Shop</h4><p class="text-gray-400 text-sm mt-2"><a href="/shop/?category=dresses">Dresses</a><br><a href="/shop/?category=bags">Bags</a><br><a href="/shop/?category=shoes">Shoes</a></p></div>
+    <div><h4 class="font-bold">Help</h4><p class="text-gray-400 text-sm mt-2">WhatsApp: {{ setting.whatsapp_number }}<br><a href="/support/">Report an Issue</a><br><a href="/my-orders/">Track My Order</a></p></div>
+  </div>
+  <p class="text-center text-xs text-gray-500 pb-4">© 2026 House of Nissi Nyameani. All rights reserved.</p>
+</footer>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/{{ setting.whatsapp_number }}" target="_blank" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-full shadow-lg font-bold text-sm">💬 WhatsApp Us</a>
+</body>
+</html>

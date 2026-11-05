@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-6">
+<h1 class="font-serif2 text-3xl">My Cart 🛒</h1>
+{% if items %}
+<div class="space-y-3 mt-4">{% for it in items %}<div class="bg-white p-3 rounded-2xl flex gap-3 items-center">{% if it.product.image %}<img src="{{ it.product.image.url }}" class="w-20 h-20 object-cover rounded-xl">{% endif %}<div class="flex-1"><h3 class="font-bold">{{ it.product.name }}</h3><p class="text-sm text-gray-500">Qty: {{ it.qty }} × GH₵ {{ it.product.price }}</p></div><p class="font-bold">GH₵ {{ it.sub }}</p></div>{% endfor %}</div>
+<div class="bg-white p-4 rounded-2xl mt-4 flex justify-between font-bold"><span>Total</span><span>GH₵ {{ total }}</span></div>
+<a href="/checkout/" class="block text-center bg-black text-white py-3 rounded-full mt-4 font-bold">Proceed to Checkout →</a>
+{% else %}<p class="text-center text-gray-500 py-10 bg-white rounded-2xl mt-4">Your cart is empty. <a href="/shop/" class="text-blue-600 underline">Go shopping</a></p>{% endif %}
+</div>
+{% endblock %}
