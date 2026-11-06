@@ -1,0 +1,7 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="section"><h2>🛍️ Shop <span>All Products</span></h2>
+<form method="get" style="display:flex;gap:10px"><input name="q" value="{{ query }}" placeholder="Search dress, bag..."><button class="btn">Search</button></form><br>
+<div style="display:flex;gap:8px;flex-wrap:wrap">{% for c in categories %}<a href="{% url 'category_detail' c.id %}" class="btn btn-black">{{ c.icon }} {{ c.name }}</a>{% endfor %}</div><br>
+<div class="grid">{% for p in products %}<div class="card">{% if p.image %}<a href="{% url 'product_detail' p.id %}"><img src="{{ p.image.url }}"></a>{% endif %}<h3>{{ p.name }}</h3><p class="price">GH₵ {{ p.price }}</p><br><a href="{% url 'product_detail' p.id %}" class="btn">View</a> <a href="{% url 'add_to_cart' p.id %}" class="btn btn-black">Add to Cart</a></div>{% empty %}<p>No products found.</p>{% endfor %}</div></div>
+{% endblock %}

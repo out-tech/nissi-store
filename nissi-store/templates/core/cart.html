@@ -1,0 +1,7 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="section"><h2>🛒 My <span>Cart</span></h2><br>
+{% if items %}{% for i in items %}<div class="card" style="display:flex;gap:15px;align-items:center;margin-bottom:12px">{% if i.product.image %}<img src="{{ i.product.image.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:10px">{% endif %}<div style="flex:1"><h3>{{ i.product.name }}</h3><p>GH₵ {{ i.product.price }} x {{ i.quantity }} = <b>GH₵ {{ i.total }}</b></p><a href="{% url 'update_cart' i.id %}?action=minus">➖</a> {{ i.quantity }} <a href="{% url 'update_cart' i.id %}?action=plus">➕</a> | <a href="{% url 'update_cart' i.id %}?action=remove" style="color:red">Remove</a></div></div>{% endfor %}
+<div class="card"><h3>Total: GH₵ {{ total }}</h3><br><a href="/checkout/" class="btn">✅ Proceed to Checkout (Login Required)</a> <a href="/shop/" class="btn btn-black">Continue Shopping</a></div>
+{% else %}<p>Your cart is empty.</p><a href="/shop/" class="btn">Shop Now →</a>{% endif %}</div>
+{% endblock %}

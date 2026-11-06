@@ -1,0 +1,7 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="section"><h2>📦 My <span>Orders</span></h2><br>
+{% for o in orders %}<div class="card" style="margin-bottom:12px"><b>Order #{{ o.id }}</b> - {{ o.status }} - GH₵ {{ o.total_amount }} - {{ o.payment_method }}<p>{{ o.full_name }} | {{ o.phone }} | {{ o.address }}</p>{% if o.admin_feedback %}<p style="background:#fff8dc;padding:10px;border-radius:8px"><b>💬 Admin Feedback:</b> {{ o.admin_feedback }}</p>{% endif %}{% for item in o.items.all %}<p>• {{ item.product.name }} x {{ item.quantity }}</p>{% endfor %}</div>{% empty %}<p>No orders yet.</p>{% endfor %}
+<h2>✨ My Special Orders</h2>{% for s in specials %}<div class="card" style="margin:10px 0"><b>{{ s.name }}</b> - {{ s.status }}<p>{{ s.design_details }}</p>{% if s.admin_feedback %}<p style="background:#fff8dc;padding:10px"><b>Admin:</b> {{ s.admin_feedback }}</p>{% endif %}</div>{% empty %}<p>No special orders yet.</p>{% endfor %}
+</div>
+{% endblock %}

@@ -1,42 +1,37 @@
 from django.contrib import admin
-from .models import Product, Customer, Order, OrderItem, ActivityLog, SupportTicket, SiteSetting
+from .models import Category, Product, CartItem, Order, OrderItem, SpecialOrder, Review
 
-admin.site.site_header = "HOUSE OF NISSI NYAMEANI - Admin"
-admin.site.site_title = "Nissi Admin"
-admin.site.index_title = "Welcome, Madam Nissi 👑"
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['icon', 'name', 'description']
+    search_fields = ['name']
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'price', 'is_available', 'is_featured']
+    list_filter = ['category', 'is_available']
+    search_fields = ['name']
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'stock', 'is_featured')
-    list_filter = ('category',)
-    search_fields = ('name',)
-    list_editable = ('price', 'stock', 'is_featured')
-
-@admin.register(Customer)
-class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone', 'location', 'total_orders', 'total_spent', 'created_at')
-    search_fields = ('user__username', 'phone')
-
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'total', 'status', 'payment_method', 'created_at')
-    list_filter = ('status',)
-    list_editable = ('status',)
+    list_display = ['id', 'user', 'full_name', 'phone', 'total_amount', 'payment_method', 'status', 'created_at']
+    list_filter = ['status', 'payment_method']
+    search_fields = ['full_name', 'phone']
     inlines = [OrderItemInline]
 
-@admin.register(ActivityLog)
-class ActivityLogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'action', 'details', 'created_at')
-    list_filter = ('action',)
+@admin.register(SpecialOrder)
+class SpecialOrderAdmin(admin.ModelAdmin):
+    list_display = ['name', 'phone', 'size', 'budget', 'status', 'created_at']
+    list_filter = ['status']
+    search_fields = ['name', 'phone']
 
-@admin.register(SupportTicket)
-class SupportTicketAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'user', 'status', 'created_at')
-    list_filter = ('status',)
-    list_editable = ('status',)
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['product', 'user', 'rating', 'is_approved', 'created_at']
+    list_filter = ['rating', 'is_approved']
 
-admin.site.register(SiteSetting)
+admin.site.register(CartItem)

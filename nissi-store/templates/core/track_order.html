@@ -1,0 +1,5 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="section"><h2>🔍 Track <span>Order</span></h2><form method="get"><input name="order_id" placeholder="Enter Order ID e.g. 1"><button class="btn">Track</button></form><br>
+{% if order %}<div class="card"><h3>Order #{{ order.id }} - {{ order.status }}</h3><p>Total: GH₵ {{ order.total_amount }} | Payment: {{ order.payment_method }}</p><p>Progress: Pending → Confirmed → Processing → Shipped → Delivered</p>{% if order.admin_feedback %}<p><b>Admin Feedback:</b> {{ order.admin_feedback }}</p>{% endif %}</div>{% endif %}</div>
+{% endblock %}

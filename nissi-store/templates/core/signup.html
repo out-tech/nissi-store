@@ -1,0 +1,2 @@
+{% extends 'core/base.html' %}
+{% block content %}<div class="section"><div class="card" style="max-width:450px;margin:auto"><h2>👑 Create Account</h2><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn" style="width:100%">Sign Up</button></form><p style="margin-top:15px">Already have account? <a href="/login/">Login</a></p></div></div>{% endblock %}

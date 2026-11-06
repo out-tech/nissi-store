@@ -1,0 +1,10 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="section"><a href="/shop/">← Back to Shop</a><br><br>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">{% if product.image %}<img src="{{ product.image.url }}" style="width:100%;border-radius:14px">{% endif %}
+<div><span class="badge">{{ product.category.name }}</span><h2 style="margin-top:10px">{{ product.name }}</h2><p class="price" style="font-size:26px">GH₵ {{ product.price }} {% if product.old_price %}<s>GH₵ {{ product.old_price }}</s>{% endif %}</p><p style="margin:15px 0">{{ product.description }}</p><a href="{% url 'add_to_cart' product.id %}" class="btn">🛒 Add to Cart</a> <a href="/cart/" class="btn btn-black">View Cart →</a><br><br><a href="/special-order/" class="btn btn-green">✨ Want This Customized? Special Order</a></div></div>
+<br><h2>⭐ Reviews</h2>{% for r in reviews %}<div class="card" style="margin:10px 0"><b>{{ r.user.username }}</b> - {{ r.rating }} ⭐<p>{{ r.comment }}</p></div>{% empty %}<p>No reviews yet.</p>{% endfor %}
+{% if user.is_authenticated %}<div class="card"><h3>Leave a Review</h3><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn">Submit Review</button></form></div>{% else %}<p><a href="/login/">Login</a> to leave a review.</p>{% endif %}
+<br><h2>You May Also Like</h2><div class="grid">{% for p in related %}<div class="card">{% if p.image %}<a href="{% url 'product_detail' p.id %}"><img src="{{ p.image.url }}"></a>{% endif %}<h3>{{ p.name }}</h3><p class="price">GH₵ {{ p.price }}</p><br><a href="{% url 'product_detail' p.id %}" class="btn">View</a></div>{% endfor %}</div>
+</div>
+{% endblock %}

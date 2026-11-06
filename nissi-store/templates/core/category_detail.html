@@ -1,0 +1,5 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="section"><a href="/">← Back Home</a><br><br><div style="font-size:70px">{{ category.icon }}</div><h2>{{ category.name }}</h2><p>{{ category.description }}</p><br>
+<div class="grid">{% for p in products %}<div class="card">{% if p.image %}<a href="{% url 'product_detail' p.id %}"><img src="{{ p.image.url }}"></a>{% endif %}<h3>{{ p.name }}</h3><p class="price">GH₵ {{ p.price }}</p><br><a href="{% url 'product_detail' p.id %}" class="btn">View Product</a> <a href="{% url 'add_to_cart' p.id %}" class="btn btn-black">Add to Cart</a></div>{% empty %}<p>No products in this category yet. Check back soon!</p>{% endfor %}</div></div>
+{% endblock %}

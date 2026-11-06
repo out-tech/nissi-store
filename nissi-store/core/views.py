@@ -1,122 +1,173 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from .models import Product, Order, OrderItem, Customer, ActivityLog, SupportTicket, SiteSetting
-
-def get_setting():
-    s, _ = SiteSetting.objects.get_or_create(id=1)
-    return s
+from django.conf import settings
+from django.db.models import Q
+from urllib.parse import quote
+from .models import Category, Product, CartItem, Order, OrderItem, SpecialOrder, Review
+from .forms import SignupForm, SpecialOrderForm, CheckoutForm, ReviewForm
 
 def home(request):
-    products = Product.objects.filter(is_featured=True)[:8]
-    if not products:
-        products = Product.objects.all()[:8]
-    return render(request, 'home.html', {'products': products, 'setting': get_setting()})
+    categories = Category.objects.all()
+    featured = Product.objects.filter(is_available=True, is_featured=True)[:8]
+    latest = Product.objects.filter(is_available=True).order_by('-created_at')[:8]
+    reviews = Review.objects.filter(is_approved=True).order_by('-created_at')[:6]
+    return render(request, 'core/home.html', {
+        'categories': categories, 'featured': featured, 'latest': latest, 'reviews': reviews
+    })
 
 def shop(request):
-    category = request.GET.get('category', '')
-    q = request.GET.get('q', '')
-    products = Product.objects.all()
-    if category:
-        products = products.filter(category=category)
-    if q:
-        products = products.filter(name__icontains=q)
-    return render(request, 'shop.html', {'products': products, 'setting': get_setting(), 'category': category})
+    query = request.GET.get('q', '')
+    products = Product.objects.filter(is_available=True)
+    if query:
+        products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
+    categories = Category.objects.all()
+    return render(request, 'core/shop.html', {'products': products, 'categories': categories, 'query': query})
+
+def category_detail(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    products = category.products.filter(is_available=True)
+    return render(request, 'core/category_detail.html', {'category': category, 'products': products})
 
 def product_detail(request, pk):
-    p = get_object_or_404(Product, pk=pk)
-    if request.user.is_authenticated:
-        ActivityLog.objects.create(user=request.user, action='view_product', details=f"Viewed {p.name}")
-    related = Product.objects.filter(category=p.category).exclude(pk=pk)[:4]
-    return render(request, 'product_detail.html', {'p': p, 'related': related, 'setting': get_setting()})
+    product = get_object_or_404(Product, pk=pk)
+    reviews = product.reviews.filter(is_approved=True).order_by('-created_at')
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please login to leave a review.')
+            return redirect('login')
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            r = form.save(commit=False)
+            r.product = product
+            r.user = request.user
+            r.save()
+            messages.success(request, 'Thank you! Your review was added.')
+            return redirect('product_detail', pk=pk)
+    else:
+        form = ReviewForm()
+    related = Product.objects.filter(category=product.category, is_available=True).exclude(pk=pk)[:4]
+    return render(request, 'core/product_detail.html', {'product': product, 'reviews': reviews, 'form': form, 'related': related})
 
+def about(request):
+    return render(request, 'core/about.html')
+
+# --- AUTH ---
 def signup_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        phone = request.POST.get('phone')
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already taken')
-        else:
-            user = User.objects.create_user(username=username, password=password)
-            Customer.objects.create(user=user, phone=phone)
-            ActivityLog.objects.create(user=user, action='signup', details=f"{username} signed up")
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
             login(request, user)
-            return redirect('/')
-    return render(request, 'signup.html', {'setting': get_setting()})
+            messages.success(request, 'Welcome to House of Nissi!')
+            return redirect('home')
+    else:
+        form = SignupForm()
+    return render(request, 'core/signup.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
-        user = authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
-        if user:
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
-            ActivityLog.objects.create(user=user, action='login', details="Logged in")
-            return redirect('/')
+            return redirect(request.GET.get('next', 'home'))
         else:
-            messages.error(request, 'Wrong username or password')
-    return render(request, 'login.html', {'setting': get_setting()})
+            messages.error(request, 'Wrong username or password.')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'core/login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+# --- CART ---
+@login_required
+def add_to_cart(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    item, created = CartItem.objects.get_or_create(user=request.user, product=product)
+    if not created:
+        item.quantity += 1
+        item.save()
+    messages.success(request, f'{product.name} added to cart.')
+    return redirect('cart')
 
 @login_required
 def cart_view(request):
-    cart = request.session.get('cart', {})
-    items = []
-    total = 0
-    for pid, qty in cart.items():
-        try:
-            p = Product.objects.get(pk=pid)
-            sub = p.price * qty
-            total += sub
-            items.append({'product': p, 'qty': qty, 'sub': sub})
-        except: pass
-    return render(request, 'cart.html', {'items': items, 'total': total, 'setting': get_setting()})
+    items = CartItem.objects.filter(user=request.user)
+    total = sum(i.total() for i in items)
+    return render(request, 'core/cart.html', {'items': items, 'total': total})
 
 @login_required
-def add_to_cart(request, pk):
-    cart = request.session.get('cart', {})
-    cart[str(pk)] = cart.get(str(pk), 0) + 1
-    request.session['cart'] = cart
-    p = get_object_or_404(Product, pk=pk)
-    ActivityLog.objects.create(user=request.user, action='add_cart', details=f"Added {p.name} to cart")
-    return redirect('/cart/')
+def update_cart(request, pk):
+    item = get_object_or_404(CartItem, pk=pk, user=request.user)
+    action = request.GET.get('action')
+    if action == 'plus':
+        item.quantity += 1
+        item.save()
+    elif action == 'minus':
+        if item.quantity > 1:
+            item.quantity -= 1
+            item.save()
+        else:
+            item.delete()
+    elif action == 'remove':
+        item.delete()
+    return redirect('cart')
 
+# --- CHECKOUT - LOGIN REQUIRED ---
 @login_required
 def checkout(request):
-    cart = request.session.get('cart', {})
-    if not cart:
-        return redirect('/shop/')
-    total = 0
-    for pid, qty in cart.items():
-        p = Product.objects.get(pk=pid)
-        total += p.price * qty
+    items = CartItem.objects.filter(user=request.user)
+    if not items.exists():
+        messages.error(request, 'Your cart is empty.')
+        return redirect('shop')
+    total = sum(i.total() for i in items)
     if request.method == 'POST':
-        order = Order.objects.create(user=request.user, total=total, phone=request.POST.get('phone'), address=request.POST.get('address'), payment_method=request.POST.get('payment', 'Pay on Delivery'))
-        for pid, qty in cart.items():
-            p = Product.objects.get(pk=pid)
-            OrderItem.objects.create(order=order, product=p, quantity=qty, price=p.price)
-            p.stock -= qty
-            p.save()
-        cust, _ = Customer.objects.get_or_create(user=request.user)
-        cust.total_orders += 1
-        cust.total_spent += total
-        cust.save()
-        ActivityLog.objects.create(user=request.user, action='place_order', details=f"Placed Order #{order.id} - GH₵{total}")
-        request.session['cart'] = {}
-        return redirect('/my-orders/')
-    return render(request, 'checkout.html', {'total': total, 'setting': get_setting()})
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.user = request.user
+            order.total_amount = total
+            order.save()
+            for i in items:
+                OrderItem.objects.create(order=order, product=i.product, quantity=i.quantity, price=i.product.price)
+            items.delete()
+            messages.success(request, f'Order #{order.id} placed! Pay with {order.payment_method} and send reference.')
+            return redirect('my_orders')
+    else:
+        form = CheckoutForm(initial={'full_name': request.user.username})
+    return render(request, 'core/checkout.html', {'form': form, 'items': items, 'total': total})
 
 @login_required
 def my_orders(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'my-orders.html', {'orders': orders, 'setting': get_setting()})
+    specials = SpecialOrder.objects.all().order_by('-created_at')
+    return render(request, 'core/my_orders.html', {'orders': orders, 'specials': specials})
 
-@login_required
-def support_view(request):
+def track_order(request):
+    order = None
+    if request.GET.get('order_id'):
+        try:
+            order = Order.objects.get(id=request.GET.get('order_id'))
+        except Order.DoesNotExist:
+            messages.error(request, 'Order not found. Check ID.')
+    return render(request, 'core/track_order.html', {'order': order})
+
+# --- SPECIAL ORDER -> WHATSAPP + ADMIN ---
+def special_order(request):
     if request.method == 'POST':
-        SupportTicket.objects.create(user=request.user, subject=request.POST.get('subject'), message=request.POST.get('message'))
-        ActivityLog.objects.create(user=request.user, action='report_issue', details=request.POST.get('subject'))
-        messages.success(request, 'Your issue has been sent. Madam Nissi will reply soon.')
-        return redirect('/support/')
-    tickets = SupportTicket.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'support.html', {'tickets': tickets, 'setting': get_setting()})
+        form = SpecialOrderForm(request.POST, request.FILES)
+        if form.is_valid():
+            obj = form.save()
+            # Build WhatsApp message
+            text = f"Hello House of Nissi! NEW SPECIAL ORDER\n\nName: {obj.name}\nPhone: {obj.phone}\nFabric: {obj.fabric}\nSize: {obj.size}\nBudget: {obj.budget}\nDesign: {obj.design_details}"
+            wa = f"https://wa.me/{settings.WHATSAPP_NUMBER}?text={quote(text)}"
+            messages.success(request, 'Special Order saved! You will now be taken to WhatsApp.')
+            return render(request, 'core/special_order_success.html', {'wa_link': wa, 'order': obj})
+    else:
+        form = SpecialOrderForm()
+    return render(request, 'core/special_order.html', {'form': form})

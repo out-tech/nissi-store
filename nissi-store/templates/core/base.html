@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}House of Nissi{% endblock %}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#fff;color:#111}
+:root{--gold:#D4AF37;--gold2:#C9A227;--black:#0a0a0a}
+header{background:var(--black);padding:12px 15px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--gold)}
+.menu-btn{background:none;border:none;color:var(--gold);font-size:30px;cursor:pointer}
+.logo{color:white;font-size:20px;font-weight:900;text-decoration:none}
+.logo b{color:var(--gold)}
+.logo img{height:38px;vertical-align:middle;border-radius:50%}
+.top-right{margin-left:auto;display:flex;gap:12px;align-items:center}
+.top-right a{color:white;text-decoration:none;font-size:14px}
+.top-right a.gold{color:var(--gold);font-weight:bold}
+.sidebar{height:100%;width:0;position:fixed;top:0;left:0;background:#0a0a0a;overflow-x:hidden;transition:.3s;padding-top:60px;z-index:200;border-right:2px solid var(--gold)}
+.sidebar a{padding:14px 25px;text-decoration:none;font-size:17px;color:white;display:block;border-bottom:1px solid #222}
+.sidebar a:hover{background:var(--gold);color:black}
+.sidebar .closebtn{position:absolute;top:5px;right:20px;font-size:32px;border:none}
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:150}
+.main{max-width:1150px;margin:0 auto;padding:0 15px}
+.btn{background:var(--gold);color:black;padding:12px 20px;border-radius:8px;text-decoration:none;display:inline-block;border:none;cursor:pointer;font-weight:900}
+.btn-black{background:black;color:var(--gold)}
+.btn-green{background:#25D366;color:white}
+.card{background:white;border:1px solid #eee;border-radius:14px;padding:14px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.card img{width:100%;height:220px;object-fit:cover;border-radius:10px;background:#f5f5f5}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.price{color:#0a0a0a;font-weight:900;font-size:18px}.price s{color:#999;font-size:14px}
+.cat-icon{font-size:48px;text-align:center;background:#0a0a0a;color:var(--gold);border-radius:14px;padding:20px 10px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;margin:6px 0 14px}
+label{font-weight:bold;font-size:14px}
+footer{background:#0a0a0a;color:white;text-align:center;padding:30px 15px;margin-top:50px;border-top:3px solid var(--gold)}
+footer a{color:var(--gold);text-decoration:none}
+.msg{background:#fff8dc;border:1px solid var(--gold);padding:12px;border-radius:8px;margin:15px 0}
+.section{padding:35px 0}.section h2{font-size:26px;margin-bottom:5px}.section h2 span{color:var(--gold2)}
+.badge{background:var(--gold);color:black;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:bold}
+</style>
+</head>
+<body>
+<header>
+<button class="menu-btn" onclick="openMenu()">☰</button>
+<a href="/" class="logo">👑 HOUSE OF <b>NISSI</b></a>
+<div class="top-right">
+{% if user.is_authenticated %}<a href="/my-orders/">Hi, {{ user.username }}</a><a href="/logout/">Logout</a>{% else %}<a href="/login/">Login</a><a class="gold" href="/signup/">Sign Up</a>{% endif %}
+<a href="/cart/">🛒 Cart</a>
+</div>
+</header>
+<div id="mySidebar" class="sidebar">
+<a href="javascript:void(0)" class="closebtn" onclick="closeMenu()">×</a>
+<a href="/">🏠 Home</a><a href="/shop/">🛍️ Shop All</a><a href="/special-order/">✨ Special Order</a><a href="/cart/">🛒 My Cart</a><a href="/my-orders/">📦 My Orders</a><a href="/track-order/">🔍 Track Order</a><a href="/about/">💛 About Us</a><a href="/admin/">🔐 Admin</a>
+</div>
+<div id="overlay" class="overlay" onclick="closeMenu()"></div>
+<div class="main">
+{% if messages %}{% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}{% endif %}
+{% block content %}{% endblock %}
+</div>
+<footer>
+<p style="font-size:22px;color:#D4AF37;font-weight:900">👑 HOUSE OF NISSI</p>
+<p>Accra, Ghana | Fashion Made With Love</p>
+<p><a href="/shop/">Shop</a> | <a href="/special-order/">Special Order</a> | <a href="/about/">About</a> | <a href="/track-order/">Track Order</a></p>
+<p>© 2026 House of Nissi. All rights reserved.</p>
+</footer>
+<script>
+function openMenu(){document.getElementById("mySidebar").style.width="280px";document.getElementById("overlay").style.display="block"}
+function closeMenu(){document.getElementById("mySidebar").style.width="0";document.getElementById("overlay").style.display="none"}
+</script>
+</body>
+</html>

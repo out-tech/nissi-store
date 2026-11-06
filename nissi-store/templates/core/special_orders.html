@@ -1,0 +1,4 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="section"><h2>✨ Special <span>Order</span></h2><p>Tell us how you want your cloth designed. It goes to Admin AND directly to WhatsApp.</p><br><div class="card"><form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<button class="btn">Send Special Order → WhatsApp</button></form></div></div>
+{% endblock %}
